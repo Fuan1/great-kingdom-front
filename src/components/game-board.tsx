@@ -1,11 +1,10 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
+import { useState } from 'react';
 
-// 셀 상태: 돌과 영역 정보
-type StoneType = null | "black" | "white";
-type TerritoryType = null | "black" | "white";
-type BorderType = null | "top" | "right" | "bottom" | "left";
+type StoneType = null | 'black' | 'white' | 'neutrality';
+type TerritoryType = null | 'black' | 'white' | 'neutrality';
+type BorderType = null | 'top' | 'right' | 'bottom' | 'left';
 type CellState = {
     stone: StoneType;
     territory: TerritoryType;
@@ -20,13 +19,7 @@ interface searchResult {
     opponentColorCount: number;
 }
 
-function dfs(
-    board: CellState[][],
-    row: number,
-    col: number,
-    color: StoneType,
-    result: searchResult
-) {
+function dfs(board: CellState[][], row: number, col: number, color: StoneType, result: searchResult) {
     if (board[row][col].territory !== null) return;
 
     if (board[row][col].stone !== null && board[row][col].stone === color) {
@@ -34,16 +27,16 @@ function dfs(
     }
 
     if (board[row][col].border !== null) {
-        if (board[row][col].border === "top") {
+        if (board[row][col].border === 'top') {
             result.meetBorder[0] = true;
         }
-        if (board[row][col].border === "right") {
+        if (board[row][col].border === 'right') {
             result.meetBorder[1] = true;
         }
-        if (board[row][col].border === "bottom") {
+        if (board[row][col].border === 'bottom') {
             result.meetBorder[2] = true;
         }
-        if (board[row][col].border === "left") {
+        if (board[row][col].border === 'left') {
             result.meetBorder[3] = true;
         }
         return;
@@ -74,17 +67,10 @@ function initSearchResult(): searchResult {
         opponentColorCount: 0,
     };
 }
-function checkTerritory(
-    board: CellState[][],
-    result: searchResult,
-    currentPlayer: StoneType
-) {
+function checkTerritory(board: CellState[][], result: searchResult, currentPlayer: StoneType) {
     console.log(result);
     if (
-        (result.meetBorder[0] &&
-            result.meetBorder[1] &&
-            result.meetBorder[2] &&
-            result.meetBorder[3]) ||
+        (result.meetBorder[0] && result.meetBorder[1] && result.meetBorder[2] && result.meetBorder[3]) ||
         result.meetColor
     ) {
         for (let i = 0; i < 11; i++) {
@@ -126,9 +112,9 @@ function checkWinner(board: CellState[][]) {
 
     for (let i = 1; i < 10; i++) {
         for (let j = 1; j < 10; j++) {
-            if (board[i][j].territory === "black") {
+            if (board[i][j].territory === 'black') {
                 blackCount++;
-            } else if (board[i][j].territory === "white") {
+            } else if (board[i][j].territory === 'white') {
                 whiteCount++;
             }
         }
@@ -137,9 +123,9 @@ function checkWinner(board: CellState[][]) {
     console.log(blackCount, whiteCount);
 
     if (blackCount > whiteCount + 2.5) {
-        return "black";
+        return 'black';
     } else {
-        return "white";
+        return 'white';
     }
 }
 
@@ -160,16 +146,16 @@ export function GameBoard() {
     );
 
     for (let i = 0; i < 11; i++) {
-        board[0][i].border = "top";
-        board[10][i].border = "bottom";
-        board[i][0].border = "left";
-        board[i][10].border = "right";
+        board[0][i].border = 'top';
+        board[10][i].border = 'bottom';
+        board[i][0].border = 'left';
+        board[i][10].border = 'right';
     }
+    board[5][5].stone = 'neutrality';
+    board[5][5].territory = 'neutrality';
 
     // 현재 플레이어 턴 (흑돌 시작)
-    const [currentPlayer, setCurrentPlayer] = useState<"black" | "white">(
-        "black"
-    );
+    const [currentPlayer, setCurrentPlayer] = useState<'black' | 'white'>('black');
 
     // 게임 승자
     const [winner, setWinner] = useState<StoneType>(null);
@@ -227,17 +213,13 @@ export function GameBoard() {
             setWinner(isWinner);
         }
         // 플레이어 턴 변경
-        setCurrentPlayer(currentPlayer === "black" ? "white" : "black");
+        setCurrentPlayer(currentPlayer === 'black' ? 'white' : 'black');
     };
 
     return (
         <div className="relative w-full h-full rounded-md overflow-hidden">
             {/* 바둑판 이미지 */}
-            <img
-                src="/grid-9x9.png"
-                alt="9x9 게임 그리드"
-                className="w-full h-full object-contain"
-            />
+            <img src="/grid-9x9.png" alt="9x9 게임 그리드" className="w-full h-full object-contain" />
 
             {/* 클릭 가능한 오버레이 그리드 */}
             <div className="absolute top-0 left-0 w-full h-full grid grid-cols-9 grid-rows-9">
@@ -247,13 +229,11 @@ export function GameBoard() {
                             key={`${rowIndex}-${colIndex}`}
                             className={`
                 relative cursor-pointer
-                ${cell.territory === "black" ? "bg-black m-2 rounded-md" : ""}
-                ${cell.territory === "white" ? "bg-white m-2 rounded-md" : ""}
-                ${cell.visited === true ? "bg-red-500" : ""}
+                ${cell.territory === 'black' ? 'bg-black m-2 rounded-md' : ''}
+                ${cell.territory === 'white' ? 'bg-white m-2 rounded-md' : ''}
+                ${cell.visited === true ? 'bg-red-500' : ''}
               `}
-                            onClick={() =>
-                                handleCellClick(rowIndex + 1, colIndex + 1)
-                            }
+                            onClick={() => handleCellClick(rowIndex + 1, colIndex + 1)}
                         >
                             {/* 돌 렌더링 */}
                             {cell.stone && (
@@ -262,9 +242,11 @@ export function GameBoard() {
                   absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
                   w-4/5 h-4/5 rounded-full shadow-md
                   ${
-                      cell.stone === "black"
-                          ? "bg-black"
-                          : "bg-white border border-gray-300"
+                      cell.stone === 'black'
+                          ? 'bg-black'
+                          : cell.stone === 'white'
+                          ? 'bg-white border border-gray-300'
+                          : 'bg-gray-300'
                   }
                 `}
                                 ></div>
@@ -277,8 +259,8 @@ export function GameBoard() {
             {/* 현재 플레이어 턴 표시 */}
             <div className="absolute bottom-2 right-2 px-2 py-1 bg-opacity-75 bg-gray-800 text-white rounded-md">
                 {winner
-                    ? `${winner === "black" ? "흑돌" : "백돌"} 승리!`
-                    : `${currentPlayer === "black" ? "흑돌" : "백돌"} 차례`}
+                    ? `${winner === 'black' ? '흑돌' : '백돌'} 승리!`
+                    : `${currentPlayer === 'black' ? '흑돌' : '백돌'} 차례`}
             </div>
         </div>
     );
