@@ -1,25 +1,25 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from "react";
+import {
+    CellState,
+    ColorType,
+    GameState,
+    PlayerType,
+    searchResult,
+    StoneType,
+    WinnerType,
+} from "@/types/Game";
+import { useChessSocket } from "@/api/socket/client";
+import { useGameStore } from "@/store";
 
-type StoneType = null | 'black' | 'white' | 'neutrality';
-type TerritoryType = null | 'black' | 'white' | 'neutrality';
-type BorderType = null | 'top' | 'right' | 'bottom' | 'left';
-type CellState = {
-    stone: StoneType;
-    territory: TerritoryType;
-    border: BorderType;
-    visited: boolean;
-};
-
-interface searchResult {
-    meetBorder: boolean[];
-    meetColor: boolean;
-    blankCount: number;
-    opponentColorCount: number;
-}
-
-function dfs(board: CellState[][], row: number, col: number, color: StoneType, result: searchResult) {
+function dfs(
+    board: CellState[][],
+    row: number,
+    col: number,
+    color: StoneType,
+    result: searchResult
+) {
     if (board[row][col].territory !== null) return;
 
     if (board[row][col].stone !== null && board[row][col].stone === color) {
@@ -27,16 +27,16 @@ function dfs(board: CellState[][], row: number, col: number, color: StoneType, r
     }
 
     if (board[row][col].border !== null) {
-        if (board[row][col].border === 'top') {
+        if (board[row][col].border === "top") {
             result.meetBorder[0] = true;
         }
-        if (board[row][col].border === 'right') {
+        if (board[row][col].border === "right") {
             result.meetBorder[1] = true;
         }
-        if (board[row][col].border === 'bottom') {
+        if (board[row][col].border === "bottom") {
             result.meetBorder[2] = true;
         }
-        if (board[row][col].border === 'left') {
+        if (board[row][col].border === "left") {
             result.meetBorder[3] = true;
         }
         return;
@@ -67,10 +67,17 @@ function initSearchResult(): searchResult {
         opponentColorCount: 0,
     };
 }
-function checkTerritory(board: CellState[][], result: searchResult, currentPlayer: StoneType) {
+function checkTerritory(
+    board: CellState[][],
+    result: searchResult,
+    currentPlayer: StoneType
+) {
     console.log(result);
     if (
-        (result.meetBorder[0] && result.meetBorder[1] && result.meetBorder[2] && result.meetBorder[3]) ||
+        (result.meetBorder[0] &&
+            result.meetBorder[1] &&
+            result.meetBorder[2] &&
+            result.meetBorder[3]) ||
         result.meetColor
     ) {
         for (let i = 0; i < 11; i++) {
@@ -112,9 +119,9 @@ function checkWinner(board: CellState[][]) {
 
     for (let i = 1; i < 10; i++) {
         for (let j = 1; j < 10; j++) {
-            if (board[i][j].territory === 'black') {
+            if (board[i][j].territory === "black") {
                 blackCount++;
-            } else if (board[i][j].territory === 'white') {
+            } else if (board[i][j].territory === "white") {
                 whiteCount++;
             }
         }
@@ -123,103 +130,53 @@ function checkWinner(board: CellState[][]) {
     console.log(blackCount, whiteCount);
 
     if (blackCount > whiteCount + 2.5) {
-        return 'black';
+        return "black";
     } else {
-        return 'white';
+        return "white";
     }
 }
 
 export function GameBoard() {
-    const [board, setBoard] = useState<CellState[][]>(
-        Array(11)
-            .fill(null)
-            .map(() =>
-                Array(11)
-                    .fill(null)
-                    .map(() => ({
-                        stone: null,
-                        territory: null,
-                        border: null,
-                        visited: false,
-                    }))
-            )
-    );
-
-    for (let i = 0; i < 11; i++) {
-        board[0][i].border = 'top';
-        board[10][i].border = 'bottom';
-        board[i][0].border = 'left';
-        board[i][10].border = 'right';
-    }
-    board[5][5].stone = 'neutrality';
-    board[5][5].territory = 'neutrality';
+    const currentGame = useGameStore((state) => state.currentGame);
+    const { makeMove } = useChessSocket();
+    const [board, setBoard] = useState<CellState[][]>(currentGame?.board || []);
 
     // 현재 플레이어 턴 (흑돌 시작)
-    const [currentPlayer, setCurrentPlayer] = useState<'black' | 'white'>('black');
-
+    const [currentPlayer, setCurrentPlayer] = useState<PlayerType>(
+        currentGame?.currentTurn || ColorType.BLACK
+    );
     // 게임 승자
-    const [winner, setWinner] = useState<StoneType>(null);
+    const [winner, setWinner] = useState<WinnerType>(
+        currentGame?.winner || null
+    );
 
-    // 셀 클릭 핸들러
-    const handleCellClick = (row: number, col: number) => {
-        // 게임이 끝났거나 이미 돌이 있는 경우 무시
-        if (winner || board[row][col].stone !== null) return;
-
-        // 영역에는 돌을 둘 수 없음
-        if (board[row][col].territory !== null) return;
-
-        // 새 보드 상태 생성
-        const newBoard = JSON.parse(JSON.stringify(board));
-        var result: searchResult = initSearchResult();
-        newBoard[row][col].stone = currentPlayer;
-
-        dfs(newBoard, row - 1, col, currentPlayer, result);
-        checkTerritory(newBoard, result, currentPlayer);
-        var isCapture = checkCapture(result);
-        if (isCapture) {
-            setWinner(currentPlayer);
+    // currentGame이 변경될 때 board, currentPlayer, winner 상태 업데이트
+    useEffect(() => {
+        if (currentGame) {
+            setBoard(currentGame.board);
+            setCurrentPlayer(currentGame.currentTurn);
+            setWinner(currentGame.winner);
         }
-        result = initSearchResult();
+    }, [currentGame]);
 
-        dfs(newBoard, row + 1, col, currentPlayer, result);
-        checkTerritory(newBoard, result, currentPlayer);
-        isCapture = checkCapture(result);
-        if (isCapture) {
-            setWinner(currentPlayer);
+    const handleMakeMove = async (row: number, col: number) => {
+        try {
+            if (currentGame) {
+                await makeMove(currentGame.gameId, row, col);
+            }
+        } catch (err) {
+            console.error("게임 생성 오류:", err);
         }
-        result = initSearchResult();
-
-        dfs(newBoard, row, col - 1, currentPlayer, result);
-        checkTerritory(newBoard, result, currentPlayer);
-        isCapture = checkCapture(result);
-        if (isCapture) {
-            setWinner(currentPlayer);
-        }
-        result = initSearchResult();
-
-        dfs(newBoard, row, col + 1, currentPlayer, result);
-        isCapture = checkCapture(result);
-        if (isCapture) {
-            setWinner(currentPlayer);
-        }
-        checkTerritory(newBoard, result, currentPlayer);
-
-        // 영역 계산
-        setBoard(newBoard);
-
-        const isWinner = checkWinner(newBoard);
-        console.log(isWinner);
-        if (isWinner) {
-            setWinner(isWinner);
-        }
-        // 플레이어 턴 변경
-        setCurrentPlayer(currentPlayer === 'black' ? 'white' : 'black');
     };
 
     return (
         <div className="relative w-full h-full rounded-md overflow-hidden">
             {/* 바둑판 이미지 */}
-            <img src="/grid-9x9.png" alt="9x9 게임 그리드" className="w-full h-full object-contain" />
+            <img
+                src="/grid-9x9.png"
+                alt="9x9 게임 그리드"
+                className="w-full h-full object-contain"
+            />
 
             {/* 클릭 가능한 오버레이 그리드 */}
             <div className="absolute top-0 left-0 w-full h-full grid grid-cols-9 grid-rows-9">
@@ -229,11 +186,13 @@ export function GameBoard() {
                             key={`${rowIndex}-${colIndex}`}
                             className={`
                 relative cursor-pointer
-                ${cell.territory === 'black' ? 'bg-black m-2 rounded-md' : ''}
-                ${cell.territory === 'white' ? 'bg-white m-2 rounded-md' : ''}
-                ${cell.visited === true ? 'bg-red-500' : ''}
+                ${cell.territory === "black" ? "bg-black m-2 rounded-md" : ""}
+                ${cell.territory === "white" ? "bg-white m-2 rounded-md" : ""}
+                ${cell.visited === true ? "bg-red-500" : ""}
               `}
-                            onClick={() => handleCellClick(rowIndex + 1, colIndex + 1)}
+                            onClick={() =>
+                                handleMakeMove(rowIndex + 1, colIndex + 1)
+                            }
                         >
                             {/* 돌 렌더링 */}
                             {cell.stone && (
@@ -242,11 +201,11 @@ export function GameBoard() {
                   absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
                   w-4/5 h-4/5 rounded-full shadow-md
                   ${
-                      cell.stone === 'black'
-                          ? 'bg-black'
-                          : cell.stone === 'white'
-                          ? 'bg-white border border-gray-300'
-                          : 'bg-gray-300'
+                      cell.stone === "black"
+                          ? "bg-black"
+                          : cell.stone === "white"
+                          ? "bg-white border border-gray-300"
+                          : "bg-gray-300"
                   }
                 `}
                                 ></div>
@@ -259,8 +218,8 @@ export function GameBoard() {
             {/* 현재 플레이어 턴 표시 */}
             <div className="absolute bottom-2 right-2 px-2 py-1 bg-opacity-75 bg-gray-800 text-white rounded-md">
                 {winner
-                    ? `${winner === 'black' ? '흑돌' : '백돌'} 승리!`
-                    : `${currentPlayer === 'black' ? '흑돌' : '백돌'} 차례`}
+                    ? `${winner === "black" ? "흑돌" : "백돌"} 승리!`
+                    : `${currentPlayer === "black" ? "흑돌" : "백돌"} 차례`}
             </div>
         </div>
     );
