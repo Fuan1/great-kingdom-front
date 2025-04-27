@@ -1,13 +1,13 @@
-import { create } from "zustand";
-import { GameState } from "@/types/Game";
+import { create } from 'zustand';
+import { GameState } from '@/types/Game';
 
 interface GameStore {
     // 상태
-    currentGame: GameState | null;
+    currentGame?: GameState;
     gameList: string[];
 
     // 액션
-    setCurrentGame: (game: GameState | null) => void;
+    setCurrentGame: (game?: GameState) => void;
     setGameList: (games: string[]) => void;
     updateGameState: (gameState: GameState) => void;
     resetGame: () => void;
@@ -15,7 +15,7 @@ interface GameStore {
 
 const useGameStore = create<GameStore>((set) => ({
     // 초기 상태
-    currentGame: null,
+    currentGame: undefined,
     gameList: [],
 
     // 액션 정의
@@ -23,11 +23,9 @@ const useGameStore = create<GameStore>((set) => ({
     setGameList: (games) => set({ gameList: games }),
     updateGameState: (gameState) =>
         set((state) => ({
-            currentGame: state.currentGame
-                ? { ...state.currentGame, ...gameState }
-                : gameState,
+            currentGame: state.currentGame ? { ...state.currentGame, ...gameState } : gameState,
         })),
-    resetGame: () => set({ currentGame: null }),
+    resetGame: () => set({ currentGame: undefined }),
 }));
 
 export default useGameStore;

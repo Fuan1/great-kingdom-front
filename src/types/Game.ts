@@ -1,13 +1,12 @@
 export enum ColorType {
-    BLACK = "black",
-    WHITE = "white",
-    NEUTRALITY = "neutrality",
+    BLACK = 'black',
+    WHITE = 'white',
+    NEUTRALITY = 'neutrality',
 }
-export type PlayerType = ColorType.BLACK | ColorType.WHITE;
 export type WinnerType = null | ColorType.BLACK | ColorType.WHITE;
 export type StoneType = null | ColorType;
 export type TerritoryType = null | ColorType;
-export type BorderType = null | "top" | "right" | "bottom" | "left";
+export type BorderType = null | 'top' | 'right' | 'bottom' | 'left';
 export type CellState = {
     stone: StoneType;
     territory: TerritoryType;
@@ -22,12 +21,19 @@ export interface searchResult {
     opponentColorCount: number;
 }
 
+export type Player = {
+    id: string;
+    color: ColorType | null;
+    time: number;
+};
+
 export interface GameState {
     gameId: string;
     board: CellState[][];
-    currentPlayer: string;
-    currentTurn: PlayerType;
-    players: string[];
+    currentPlayer: Player;
+    players: Player[];
     gameOver: boolean;
-    winner: WinnerType;
+    gameIndex: number;
+    winner: string | null;
+    timer: number;
 }
