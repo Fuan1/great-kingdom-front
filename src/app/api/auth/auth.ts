@@ -1,5 +1,5 @@
-import { NextAuthOptions } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
+import { NextAuthOptions } from 'next-auth';
+import GoogleProvider from 'next-auth/providers/google';
 
 interface GoogleVerifyResponse {
     accessToken: string;
@@ -18,9 +18,9 @@ export const authOptions: NextAuthOptions = {
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
             authorization: {
                 params: {
-                    prompt: "consent",
-                    access_type: "offline",
-                    response_type: "code",
+                    prompt: 'consent',
+                    access_type: 'offline',
+                    response_type: 'code',
                 },
             },
         }),
@@ -32,9 +32,9 @@ export const authOptions: NextAuthOptions = {
                     const response = await fetch(
                         `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google/verify`,
                         {
-                            method: "POST",
+                            method: 'POST',
                             headers: {
-                                "Content-Type": "application/json",
+                                'Content-Type': 'application/json',
                             },
                             body: JSON.stringify({
                                 idToken: account.id_token,
@@ -44,13 +44,12 @@ export const authOptions: NextAuthOptions = {
                     );
 
                     if (!response.ok) {
-                        throw new Error("Failed to verify with backend");
+                        throw new Error('Failed to verify with backend');
                     }
 
-                    const data =
-                        (await response.json()) as GoogleVerifyResponse;
+                    const data = (await response.json()) as GoogleVerifyResponse;
 
-                    console.log("accessToken : ", data.accessToken);
+                    console.log('accessToken : ', data.accessToken);
 
                     return {
                         ...token,
@@ -59,29 +58,25 @@ export const authOptions: NextAuthOptions = {
                         id: data.user.id,
                     };
                 } catch (error) {
-                    console.error("Backend verification failed:", error);
+                    console.error('Backend verification failed:', error);
                     return token;
                 }
             }
 
             // 토큰 만료 체크 및 갱신 로직
-            if (
-                token.backendTokenExpires &&
-                Date.now() > token.backendTokenExpires
-            ) {
+            if (token.backendTokenExpires && Date.now() > token.backendTokenExpires) {
                 try {
                     const response = await fetch(
                         `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
                         {
-                            method: "POST",
+                            method: 'POST',
                             headers: {
                                 Authorization: `Bearer ${token.backendToken}`,
                             },
                         }
                     );
 
-                    const data =
-                        (await response.json()) as GoogleVerifyResponse;
+                    const data = (await response.json()) as GoogleVerifyResponse;
 
                     return {
                         ...token,
@@ -91,7 +86,7 @@ export const authOptions: NextAuthOptions = {
                 } catch (error) {
                     return {
                         ...token,
-                        error: "RefreshAccessTokenError",
+                        error: 'RefreshAccessTokenError',
                     };
                 }
             }
@@ -112,13 +107,13 @@ export const authOptions: NextAuthOptions = {
         },
     },
     pages: {
-        signIn: "/auth/signin",
-        error: "/auth/error",
+        signIn: '/auth/signin',
+        error: '/auth/error',
     },
     session: {
-        strategy: "jwt",
+        strategy: 'jwt',
         maxAge: 30 * 24 * 60 * 60, // 30일
     },
-    debug: process.env.NODE_ENV === "development",
+    debug: process.env.NODE_ENV === 'development',
     secret: process.env.NEXTAUTH_SECRET,
 };

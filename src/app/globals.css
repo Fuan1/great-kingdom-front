@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -151,7 +151,7 @@ img {
 /* 입력 요소에서는 선택 가능하게 유지 */
 input,
 textarea,
-[contenteditable="true"] {
+[contenteditable='true'] {
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;

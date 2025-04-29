@@ -1,14 +1,20 @@
 {
-    "files.exclude": {
-        "**/node_modules": true,
-        "**/.next": true,
-        "**/dist": true,
-        "components.json": true,
-        "eslint.config.mjs": true,
-        "postcss.config.mjs": true,
-        "tsconfig.json": true,
-        ".gitignore": true,
-        "README.md": true
-    },
-    "explorer.excludeGitIgnore": false
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/dist": true,
+    "components.json": true,
+    "eslint.config.mjs": true,
+    "postcss.config.mjs": true,
+    "tsconfig.json": true,
+    ".gitignore": true,
+    ".prettierrc": true,
+    "README.md": true
+  },
+  "explorer.excludeGitIgnore": false,
+  "editor.wordWrap": "on",
+  "editor.wordWrapColumn": 100,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.tabSize": 4
 }

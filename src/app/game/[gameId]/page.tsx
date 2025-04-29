@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useChessSocket } from "@/api/socket/client";
-import { GameBoard } from "@/components/game-board";
-import { NotationBox } from "@/components/notation-box";
-import { PlayerProfileBadge } from "@/components/player-profile-badge";
-import { TimeBox } from "@/components/time-box";
+import { useChessSocket } from '@/hooks/socket/client';
+import { GameBoard } from '@/components/game-board';
+import { NotationBox } from '@/components/notation-box';
+import { PlayerProfileBadge } from '@/components/player-profile-badge';
+import { TimeBox } from '@/components/time-box';
 
 export default function Home() {
     const { socket } = useChessSocket();
