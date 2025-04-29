@@ -1,5 +1,5 @@
 import * as React from "react";
-import { GalleryVerticalEnd } from "lucide-react";
+import { GalleryVerticalEnd, Plus } from "lucide-react";
 
 import {
     Sidebar,
@@ -13,59 +13,38 @@ import {
     SidebarMenuSubButton,
     SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import { Button } from "./ui/button";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "./ui/dialog";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { LoginButton } from "./test-google-login";
 
 // This is sample data.
 const data = {
     navMain: [
         {
-            title: "Getting Started",
+            title: "Game",
             url: "#",
-            items: [
-                {
-                    title: "Installation",
-                    url: "#",
-                },
-            ],
-        },
-        {
-            title: "Building Your Application",
-            url: "#",
-            items: [
-                {
-                    title: "Routing",
-                    url: "#",
-                },
-            ],
-        },
-        {
-            title: "API Reference",
-            url: "#",
-            items: [
-                {
-                    title: "Components",
-                    url: "#",
-                },
-            ],
-        },
-        {
-            title: "Architecture",
-            url: "#",
-            items: [
-                {
-                    title: "Accessibility",
-                    url: "#",
-                },
-            ],
         },
         {
             title: "Community",
             url: "#",
-            items: [
-                {
-                    title: "Contribution Guide",
-                    url: "#",
-                },
-            ],
+        },
+        {
+            title: "Profile",
+            url: "#",
+        },
+        {
+            title: "Rules",
+            url: "#",
         },
     ],
 };
@@ -77,15 +56,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <a href="#">
+                            <a href="/">
                                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                                     <GalleryVerticalEnd className="size-4" />
                                 </div>
                                 <div className="flex flex-col gap-0.5 leading-none">
                                     <span className="font-medium">
-                                        Documentation
+                                        Great Kingdom
                                     </span>
-                                    <span className="">v1.0.0</span>
                                 </div>
                             </a>
                         </SidebarMenuButton>
@@ -93,7 +71,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
-                <SidebarGroup>
+                <SidebarGroup className="gap-2">
                     <SidebarMenu className="gap-2">
                         {data.navMain.map((item) => (
                             <SidebarMenuItem key={item.title}>
@@ -102,26 +80,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                         {item.title}
                                     </a>
                                 </SidebarMenuButton>
-                                {item.items?.length ? (
-                                    <SidebarMenuSub className="ml-0 border-l-0 px-1.5">
-                                        {item.items.map((item) => (
-                                            <SidebarMenuSubItem
-                                                key={item.title}
-                                            >
-                                                <SidebarMenuSubButton
-                                                    asChild
-                                                    isActive={item.isActive}
-                                                >
-                                                    <a href={item.url}>
-                                                        {item.title}
-                                                    </a>
-                                                </SidebarMenuSubButton>
-                                            </SidebarMenuSubItem>
-                                        ))}
-                                    </SidebarMenuSub>
-                                ) : null}
                             </SidebarMenuItem>
                         ))}
+                    </SidebarMenu>
+                    <SidebarMenu className="gap-2">
+                        <LoginButton />
                     </SidebarMenu>
                 </SidebarGroup>
             </SidebarContent>

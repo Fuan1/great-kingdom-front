@@ -1,34 +1,34 @@
-'use client';
+"use client";
 
-import { useChessSocket } from '@/api/socket/client';
-import { GameBoard } from '@/components/game-board';
-import { NotationBox } from '@/components/notation-box';
-import { PlayerProfileBadge } from '@/components/player-profile-badge';
-import { TimeBox } from '@/components/time-box';
-import { useGameStore, useSocketStore, useUserStore } from '@/store';
-import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useChessSocket } from "@/api/socket/client";
+import { GameBoard } from "@/components/game-board";
+import { NotationBox } from "@/components/notation-box";
+import { PlayerProfileBadge } from "@/components/player-profile-badge";
+import { TimeBox } from "@/components/time-box";
+import { useGameStore, useSocketStore, useUserStore } from "@/store";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function Home() {
-    // Zustand 스토어에서 상태와 액션 가져오기
     const { currentGame } = useGameStore();
     const { status, error } = useSocketStore();
     const { user, setUser } = useUserStore();
 
     const searchParams = useSearchParams();
-    const userId = searchParams.get('user');
+    const userId = searchParams.get("user");
 
-    // 소켓 기능은 여전히 훅에서 가져옴
     const { gameList, createGame, joinGame, getGameList } = useChessSocket();
 
     const [loading, setLoading] = useState(false);
-
+    const router = useRouter();
     useEffect(() => {
         // 컴포넌트 마운트 시 게임 목록 가져오기
-        if (status === 'connected') {
-            console.log('게임 목록 가져오기');
-            getGameList().catch((err) => console.error('게임 목록 가져오기 실패:', err));
-            console.log('game list :', gameList);
+        if (status === "connected") {
+            console.log("게임 목록 가져오기");
+            getGameList().catch((err) =>
+                console.error("게임 목록 가져오기 실패:", err)
+            );
+            console.log("game list :", gameList);
         }
     }, [status, getGameList]);
 
@@ -37,11 +37,11 @@ export default function Home() {
         const fetchAndSetUser = async () => {
             try {
                 setUser({
-                    id: userId || '',
+                    id: userId || "",
                     rating: 1234,
                 });
             } catch (error) {
-                console.error('Failed to fetch user data:', error);
+                console.error("Failed to fetch user data:", error);
             }
         };
 
@@ -54,10 +54,10 @@ export default function Home() {
             await createGame({
                 timeLimit: 300, // 5분
                 increment: 3,
-                variant: 'standard',
+                variant: "standard",
             });
         } catch (err) {
-            console.error('failed to create game', err);
+            console.error("failed to create game", err);
         } finally {
             setLoading(false);
         }
@@ -66,9 +66,14 @@ export default function Home() {
     const handleJoinGame = async (gameId: string) => {
         setLoading(true);
         try {
-            await joinGame(gameId);
+            const gameState = await joinGame(gameId);
+            console.log("게임 참가 완료", gameState.gameId);
+            // 게임 참가 후 페이지 이동
+            if (gameState && gameState.gameId) {
+                router.push(`/game/${gameState.gameId}?user=${user?.id}`);
+            }
         } catch (err) {
-            console.error('게임 참가 오류:', err);
+            console.error("게임 참가 오류:", err);
         } finally {
             setLoading(false);
         }
@@ -83,7 +88,10 @@ export default function Home() {
             <div className="connection-status">연결 상태: {status}</div>
 
             <div className="game-lobby">
-                <button onClick={handleCreateGame} disabled={loading || status !== 'connected'}>
+                <button
+                    onClick={handleCreateGame}
+                    disabled={loading || status !== "connected"}
+                >
                     새 게임 생성
                 </button>
 
@@ -92,7 +100,10 @@ export default function Home() {
                     <ul className="game-list">
                         {gameList.map((game) => (
                             <li key={game}>
-                                <button onClick={() => handleJoinGame(game)} disabled={loading}>
+                                <button
+                                    onClick={() => handleJoinGame(game)}
+                                    disabled={loading}
+                                >
                                     게임 #{game} 참가
                                 </button>
                             </li>
@@ -122,7 +133,12 @@ export default function Home() {
                             <GameBoard />
                         </div>
                         <div className="flex flex-row items-center h-12 w-full">
-                            <PlayerProfileBadge playerName="Fuan" rating={1850} countryCode="kr" isPremium={true} />
+                            <PlayerProfileBadge
+                                playerName="Fuan"
+                                rating={1850}
+                                countryCode="kr"
+                                isPremium={true}
+                            />
                             <TimeBox opponentSide={false} />
                         </div>
                     </div>

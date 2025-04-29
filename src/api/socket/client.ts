@@ -1,7 +1,7 @@
-import { io } from 'socket.io-client';
-import { useCallback, useEffect } from 'react';
-import { GameState } from '@/types/Game';
-import { useGameStore, useSocketStore, useUserStore } from '@/store';
+import { io } from "socket.io-client";
+import { useCallback, useEffect } from "react";
+import { GameState } from "@/types/Game";
+import { useGameStore, useSocketStore, useUserStore } from "@/store";
 
 // 타입 정의 개선
 interface GameOptions {
@@ -42,59 +42,63 @@ interface GameEventResponse {
 
 export const useChessSocket = () => {
     const { currentGame, setCurrentGame, setGameList } = useGameStore();
-    const { socket, status, error, setSocket, setStatus, setError } = useSocketStore();
+    const { socket, status, error, setSocket, setStatus, setError } =
+        useSocketStore();
     const { user } = useUserStore();
 
     useEffect(() => {
-        const socketInstance = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:8080', {
-            reconnection: true,
-            reconnectionAttempts: 5,
-            reconnectionDelay: 1000,
-            transports: ['websocket'],
-        });
+        const socketInstance = io(
+            process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:8080",
+            {
+                reconnection: true,
+                reconnectionAttempts: 5,
+                reconnectionDelay: 1000,
+                transports: ["websocket"],
+            }
+        );
 
         setSocket(socketInstance);
-        setStatus('connecting');
+        setStatus("connecting");
 
-        socketInstance.on('connect', () => {
-            console.log('connected server. socket ID : ', socketInstance.id);
-            setStatus('connected');
+        socketInstance.on("connect", () => {
+            console.log("connected server. socket ID : ", socketInstance.id);
+            setStatus("connected");
             setError(null);
         });
 
-        socketInstance.on('connect_error', (err: Error) => {
-            console.error('connect-error :', err.message);
-            setStatus('error');
+        socketInstance.on("connect_error", (err: Error) => {
+            console.error("connect-error :", err.message);
+            setStatus("error");
             setError(err.message);
         });
 
-        socketInstance.io.on('error', (err: Error) => {
-            console.log('Socket.io error detail information :', err);
+        socketInstance.io.on("error", (err: Error) => {
+            console.log("Socket.io error detail information :", err);
             setError(err.message);
         });
 
-        socketInstance.on('gameList', (response: GameEventResponse) => {
+        socketInstance.on("gameList", (response: GameEventResponse) => {
             if (response && response.gameList) {
                 setGameList(response.gameList);
             }
         });
 
-        socketInstance.on('gameEvent', (response: any) => {
+        socketInstance.on("gameEvent", (response: any) => {
             if (!response || response.type === null) {
                 return;
             }
 
-            if (response.type === 'move' && response.payload.gameState) {
+            if (response.type === "move" && response.payload.gameState) {
                 setCurrentGame(response.payload.gameState);
-            } else if (response.type === 'time_update') {
-                console.log('time_update', response.payload);
+            } else if (response.type === "time_update") {
+                console.log("time_update", response.payload);
                 setCurrentGame(response.payload.timeUpdate.gameState);
             }
         });
 
         return () => {
             socketInstance.disconnect();
-            setStatus('disconnected');
+            setStatus("disconnected");
         };
     }, [setSocket, setStatus, setError, setGameList, setCurrentGame]);
 
@@ -103,26 +107,33 @@ export const useChessSocket = () => {
             options: GameOptions = {
                 timeLimit: 600,
                 increment: 5,
-                variant: 'standard',
+                variant: "standard",
             }
         ) => {
-            if (!socket || status !== 'connected') return Promise.reject('socket is not connected');
+            if (!socket || status !== "connected")
+                return Promise.reject("socket is not connected");
 
             return new Promise<string>((resolve, reject) => {
-                socket.once('gameCreated', (response: GameEventResponse) => {
+                socket.once("gameCreated", (response: GameEventResponse) => {
                     if (response && response.gameId) {
                         console.log(`game ID: ${response.gameId} created`);
                         resolve(response.gameId);
                     } else {
-                        reject('invalid game creation response');
+                        reject("invalid game creation response");
                     }
                 });
 
-                socket.emit('createGame', options, (response: GameEventResponse) => {
-                    if (!response || response.event !== 'gameCreated') {
-                        reject(response?.message || 'failed to create game');
+                socket.emit(
+                    "createGame",
+                    options,
+                    (response: GameEventResponse) => {
+                        if (!response || response.event !== "gameCreated") {
+                            reject(
+                                response?.message || "failed to create game"
+                            );
+                        }
                     }
-                });
+                );
             });
         },
         [socket, status, setCurrentGame]
@@ -130,23 +141,28 @@ export const useChessSocket = () => {
 
     const joinGame = useCallback(
         (gameId: string) => {
-            if (!socket || status !== 'connected') return Promise.reject('socket is not connected');
+            if (!socket || status !== "connected")
+                return Promise.reject("socket is not connected");
 
             return new Promise<GameState>((resolve, reject) => {
-                socket.once('joinedGame', (response: GameEventResponse) => {
+                socket.once("joinedGame", (response: GameEventResponse) => {
                     if (response && response.gameState) {
                         setCurrentGame(response.gameState);
                         resolve(response.gameState);
                     } else {
-                        reject('invalid game join response');
+                        reject("invalid game join response");
                     }
                 });
 
-                socket.emit('joinGame', { gameId, userId: user?.id }, (response: GameEventResponse) => {
-                    if (!response || response.event !== 'joinedGame') {
-                        reject(response?.message || 'failed to join game');
+                socket.emit(
+                    "joinGame",
+                    { gameId, userId: user?.id },
+                    (response: GameEventResponse) => {
+                        if (!response || response.event !== "joinedGame") {
+                            reject(response?.message || "failed to join game");
+                        }
                     }
-                });
+                );
             });
         },
         [socket, status, setCurrentGame]
@@ -154,26 +170,27 @@ export const useChessSocket = () => {
 
     const makeMove = useCallback(
         (gameId: string, x: number, y: number) => {
-            if (!socket || status !== 'connected') return Promise.reject('socket is not connected');
+            if (!socket || status !== "connected")
+                return Promise.reject("socket is not connected");
 
             return new Promise<GameState>((resolve, reject) => {
-                socket.on('moveMade', (response: GameEventResponse) => {
+                socket.on("moveMade", (response: GameEventResponse) => {
                     if (response && response.gameState) {
                         resolve(response.gameState);
                     } else {
-                        reject('invalid move response');
+                        reject("invalid move response");
                     }
                 });
 
                 socket.emit(
-                    'makeMove',
+                    "makeMove",
                     {
                         gameId,
                         move: { userId: user?.id, position: { x: x, y: y } },
                     },
                     (response: GameEventResponse) => {
-                        if (response && response.event === 'error') {
-                            reject(response.message || 'failed to make move');
+                        if (response && response.event === "error") {
+                            reject(response.message || "failed to make move");
                         }
                     }
                 );
@@ -183,7 +200,8 @@ export const useChessSocket = () => {
     );
 
     const getGameList = useCallback(() => {
-        if (!socket || status !== 'connected') return Promise.reject('socket is not connected');
+        if (!socket || status !== "connected")
+            return Promise.reject("socket is not connected");
 
         return new Promise<Game[]>((resolve, reject) => {
             // 이벤트 방식 사용
@@ -192,46 +210,51 @@ export const useChessSocket = () => {
                     const games = response.gameList;
                     setGameList(games);
                     resolve(games);
-                    socket.off('gameList', gameListHandler);
+                    socket.off("gameList", gameListHandler);
                 }
             };
 
             // 타임아웃 설정
             const timeoutId = setTimeout(() => {
-                console.error('getGameList response timeout');
-                socket.off('gameList', gameListHandler);
-                reject('no response from server');
+                console.error("getGameList response timeout");
+                socket.off("gameList", gameListHandler);
+                reject("no response from server");
             }, 5000);
 
             // 'gameList' event listener registration
-            socket.on('gameList', gameListHandler);
+            socket.on("gameList", gameListHandler);
 
             // emit event only
-            socket.emit('getGameList');
+            socket.emit("getGameList");
 
             // cleanup function
             return () => {
                 clearTimeout(timeoutId);
-                socket.off('gameList', gameListHandler);
+                socket.off("gameList", gameListHandler);
             };
         });
     }, [socket, status, setGameList]);
 
     const leaveGame = useCallback(
         (gameId: string) => {
-            if (!socket || status !== 'connected') return Promise.reject('소켓이 연결되지 않았습니다');
+            if (!socket || status !== "connected")
+                return Promise.reject("소켓이 연결되지 않았습니다");
 
             return new Promise<boolean>((resolve, reject) => {
-                socket.emit('leaveGame', { gameId }, (response: GameEventResponse) => {
-                    if (response && response.event === 'leftGame') {
-                        if (currentGame && currentGame.gameId === gameId) {
-                            setCurrentGame(null);
+                socket.emit(
+                    "leaveGame",
+                    { gameId },
+                    (response: GameEventResponse) => {
+                        if (response && response.event === "leftGame") {
+                            if (currentGame && currentGame.gameId === gameId) {
+                                setCurrentGame(null);
+                            }
+                            resolve(true);
+                        } else {
+                            reject("게임을 나가는데 실패했습니다");
                         }
-                        resolve(true);
-                    } else {
-                        reject('게임을 나가는데 실패했습니다');
                     }
-                });
+                );
             });
         },
         [socket, status, currentGame, setCurrentGame]
@@ -240,14 +263,14 @@ export const useChessSocket = () => {
     const connect = useCallback(() => {
         if (socket) {
             socket.connect();
-            setStatus('connecting');
+            setStatus("connecting");
         }
     }, [socket, setStatus]);
 
     const disconnect = useCallback(() => {
         if (socket) {
             socket.disconnect();
-            setStatus('disconnected');
+            setStatus("disconnected");
         }
     }, [socket, setStatus]);
 

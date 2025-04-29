@@ -1,23 +1,39 @@
-import { GameBoard } from '@/components/game-board';
-import { NotationBox } from '@/components/notation-box';
-import { PlayerProfileBadge } from '@/components/player-profile-badge';
-import { TimeBox } from '@/components/time-box';
+"use client";
+
+import { useChessSocket } from "@/api/socket/client";
+import { GameBoard } from "@/components/game-board";
+import { NotationBox } from "@/components/notation-box";
+import { PlayerProfileBadge } from "@/components/player-profile-badge";
+import { TimeBox } from "@/components/time-box";
 
 export default function Home() {
+    const { socket } = useChessSocket();
     return (
         <main className="flex flex-row items-center max-h-screen justify-center max-w-screen-xl mx-auto p-4 gap-x-4">
             {/* game board */}
+            <p>{socket?.id}</p>
             <div className="h-full w-full flex flex-col gap-y-2">
                 <div className="flex flex-row items-center h-12 w-full">
-                    <PlayerProfileBadge playerName="홍길동" score={1} rating={1850} countryCode="kr" isPremium={true} />
-                    <TimeBox />
+                    <PlayerProfileBadge
+                        playerName="홍길동"
+                        score={1}
+                        rating={1850}
+                        countryCode="kr"
+                        isPremium={true}
+                    />
+                    <TimeBox opponentSide={false} />
                 </div>
                 <div className="flex-grow">
                     <GameBoard />
                 </div>
                 <div className="flex flex-row items-center h-12 w-full">
-                    <PlayerProfileBadge playerName="Fuan" rating={1850} countryCode="kr" isPremium={true} />
-                    <TimeBox />
+                    <PlayerProfileBadge
+                        playerName="Fuan"
+                        rating={1850}
+                        countryCode="kr"
+                        isPremium={true}
+                    />
+                    <TimeBox opponentSide={true} />
                 </div>
             </div>
             {/* game controls, chat */}

@@ -1,13 +1,17 @@
-import { useGameStore, useUserStore } from '@/store';
-import { Clock } from 'lucide-react';
-import { useEffect, useState } from 'react';
+"use client";
+
+import { useGameStore, useUserStore } from "@/store";
+import { Clock } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface TimeBoxProps {
     opponentSide: boolean;
 }
 
 function formatTime(time: number): string {
-    return `${Math.floor(time / 1000 / 60)}:${String(Math.floor((time / 1000) % 60)).padStart(2, '0')}`;
+    return `${Math.floor(time / 1000 / 60)}:${String(
+        Math.floor((time / 1000) % 60)
+    ).padStart(2, "0")}`;
 }
 
 export function TimeBox({ opponentSide }: TimeBoxProps) {
@@ -24,19 +28,26 @@ export function TimeBox({ opponentSide }: TimeBoxProps) {
     };
 
     const currentPlayer = getCurrentPlayer();
-    const [timer, setTimer] = useState<number>(currentPlayer?.time ?? DEFAULT_TIME);
+    const [timer, setTimer] = useState<number>(
+        currentPlayer?.time ?? DEFAULT_TIME
+    );
     const id = currentPlayer?.id;
 
     useEffect(() => {
         const player = getCurrentPlayer();
-        const time = player?.id === currentGame?.currentPlayer.id ? currentGame?.currentPlayer.time : player?.time;
+        const time =
+            player?.id === currentGame?.currentPlayer.id
+                ? currentGame?.currentPlayer.time
+                : player?.time;
         setTimer(time ?? DEFAULT_TIME);
     }, [currentGame]);
 
     return (
         <div
             className={`flex flex-row min-w-36 items-center justify-between border-2 ${
-                currentGame?.currentPlayer.id === id ? 'border-zinc-300' : 'border-zinc-700'
+                currentGame?.currentPlayer.id === id
+                    ? "border-zinc-300"
+                    : "border-zinc-700"
             } rounded-md px-2 py-1 gap-x-2`}
         >
             <Clock className="w-6 h-6" />
