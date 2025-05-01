@@ -1,4 +1,4 @@
-import { getSession } from "next-auth/react";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export class ApiError extends Error {
     constructor(public status: number, message: string) {
@@ -6,23 +6,21 @@ export class ApiError extends Error {
     }
 }
 
-export async function fetchWithAuth<T>(
-    url: string,
-    options: RequestInit = {}
-): Promise<T> {
-    const session = await getSession();
+export async function fetchWithAuth<T>(url: string, options: RequestInit = {}): Promise<T> {
+    const token = localStorage.getItem('accessToken');
 
-    if (!session?.backendToken) {
-        throw new ApiError(401, "Not authenticated");
+    if (!token) {
+        throw new ApiError(401, 'Not authenticated');
     }
 
-    const response = await fetch(url, {
+    const response = await fetch(`${BACKEND_URL}${url}`, {
         ...options,
         headers: {
             ...options.headers,
-            Authorization: `Bearer ${session.backendToken}`,
-            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
         },
+        credentials: 'include',
     });
 
     if (!response.ok) {

@@ -1,5 +1,5 @@
-import * as React from "react";
-import { GalleryVerticalEnd, Plus } from "lucide-react";
+import * as React from 'react';
+import { GalleryVerticalEnd, Plus } from 'lucide-react';
 
 import {
     Sidebar,
@@ -12,39 +12,27 @@ import {
     SidebarMenuSub,
     SidebarMenuSubButton,
     SidebarMenuSubItem,
-} from "@/components/ui/sidebar";
-import { Button } from "./ui/button";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "./ui/dialog";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { LoginButton } from "./test-google-login";
+} from '@/components/ui/sidebar';
+import LoginButton from './test-google-login';
 
 // This is sample data.
 const data = {
     navMain: [
         {
-            title: "Game",
-            url: "#",
+            title: 'Game',
+            url: '#',
         },
         {
-            title: "Community",
-            url: "#",
+            title: 'Community',
+            url: '#',
         },
         {
-            title: "Profile",
-            url: "#",
+            title: 'Profile',
+            url: '#',
         },
         {
-            title: "Rules",
-            url: "#",
+            title: 'Rules',
+            url: '#',
         },
     ],
 };
@@ -61,9 +49,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                     <GalleryVerticalEnd className="size-4" />
                                 </div>
                                 <div className="flex flex-col gap-0.5 leading-none">
-                                    <span className="font-medium">
-                                        Great Kingdom
-                                    </span>
+                                    <span className="font-medium">Great Kingdom</span>
                                 </div>
                             </a>
                         </SidebarMenuButton>
