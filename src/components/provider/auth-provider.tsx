@@ -17,7 +17,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         // 토큰 존재 여부로 인증 상태 확인
         const token = localStorage.getItem('accessToken');
-        console.log('AuthProvider - token', token);
         setIsAuthenticated(!!token);
     }, []);
 

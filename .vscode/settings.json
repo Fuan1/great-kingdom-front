@@ -9,6 +9,9 @@
         "tsconfig.json": true,
         ".gitignore": true,
         ".prettierrc": true,
+        "next-env.d.ts": true,
+        "next.config.ts": true,
+        "package-lock.json": true,
         "README.md": true
     },
     "explorer.excludeGitIgnore": false,

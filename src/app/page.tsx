@@ -107,9 +107,7 @@ export default function Home() {
             </div>
             <div className="active-game">
                 <h2>게임 ID: {currentGame?.gameId}</h2>
-                {/* 여기에 게임 보드와 컨트롤 렌더링 */}
                 <main className="flex flex-row items-center max-h-screen justify-center max-w-screen-xl mx-auto p-4 gap-x-4">
-                    {/* game board */}
                     <div className="h-full w-full flex flex-col gap-y-2">
                         <div className="flex flex-row items-center h-12 w-full">
                             <PlayerProfileBadge
@@ -134,7 +132,6 @@ export default function Home() {
                             <TimeBox opponentSide={false} />
                         </div>
                     </div>
-                    {/* game controls, chat */}
                     <div className="w-[40rem] h-full flex flex-col gap-x-2">
                         <div className="w-full h-2/3 ">
                             <NotationBox />

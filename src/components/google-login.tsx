@@ -1,8 +1,8 @@
 'use client';
 
-import { fetchWithAuth } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { useAuth } from './provider/auth-provider';
+import { Button } from './ui/button';
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 const REDIRECT_URI = process.env.NEXT_PUBLIC_CLIENT_URL + '/auth/callback/google';
@@ -18,26 +18,13 @@ export default function Login() {
         router.push(googleAuthUrl);
     };
 
-    console.log('isAuthenticated', isAuthenticated);
-
-    const handleTokenVerify = async () => {
-        const token = localStorage.getItem('accessToken');
-        console.log('Token', token);
-
-        const response = await fetchWithAuth('/api/auth/verify');
-
-        console.log('Data', response);
-    };
-
     return isAuthenticated ? (
-        <div className="login-container">
-            <button onClick={logout}>Logout</button>
-            <button onClick={handleTokenVerify}>Token Verify</button>
-        </div>
+        <Button size={'sm'} onClick={logout}>
+            Logout
+        </Button>
     ) : (
-        <div className="login-container">
-            <button onClick={handleGoogleLogin}>Google Login</button>
-            <button onClick={handleTokenVerify}>Token Verify</button>
-        </div>
+        <Button size={'sm'} onClick={handleGoogleLogin}>
+            Google Login
+        </Button>
     );
 }

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { GalleryVerticalEnd, Plus } from 'lucide-react';
+import { GalleryVerticalEnd } from 'lucide-react';
 
 import {
     Sidebar,
@@ -9,11 +9,8 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarMenuSub,
-    SidebarMenuSubButton,
-    SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
-import LoginButton from './test-google-login';
+import LoginButton from './google-login';
 
 // This is sample data.
 const data = {
