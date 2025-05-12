@@ -2,6 +2,7 @@ import { io } from 'socket.io-client';
 import { useCallback, useEffect } from 'react';
 import { GameState } from '@/types/Game';
 import { useGameStore, useSocketStore, useUserStore } from '@/store';
+import { useAuth } from '@/components/provider/auth-provider';
 
 // 타입 정의 개선
 interface GameOptions {
@@ -43,10 +44,19 @@ interface GameEventResponse {
 export const useChessSocket = () => {
     const { currentGame, setCurrentGame, setGameList } = useGameStore();
     const { socket, status, error, setSocket, setStatus, setError } = useSocketStore();
-    const { user } = useUserStore();
+    const { getAccessToken } = useAuth();
 
     useEffect(() => {
+        const accessToken = getAccessToken();
+
+        if (!accessToken) {
+            return;
+        }
+
         const socketInstance = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:8080', {
+            auth: {
+                token: accessToken,
+            },
             reconnection: true,
             reconnectionAttempts: 5,
             reconnectionDelay: 1000,

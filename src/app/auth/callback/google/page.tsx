@@ -35,6 +35,7 @@ export default function GoogleCallback() {
             if (response.ok) {
                 const data = await response.json();
                 // 6. 백엔드로부터 토큰 수신 및 저장
+
                 login(data.accessToken);
                 // 로그인 성공 후 홈페이지로 리디렉션
                 router.push('/');
